@@ -1,4 +1,6 @@
 # medications/views.py
+from django.utils import timezone
+from datetime import timedelta
 from django.contrib.auth.models import User
 from rest_framework import generics, permissions
 from rest_framework.decorators import api_view
@@ -86,3 +88,24 @@ class UserDetail(generics.RetrieveAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [permissions.IsAuthenticated]
+
+
+@api_view(["GET"])
+def medicines_due(request):
+    """
+    Returns medications whose next dose is due within the next hour.
+    This powers the reminder feature.
+    """
+    now = timezone.now()
+    one_hour_later = now + timedelta(hours=1)
+
+    due_schedules = Schedule.objects.filter(
+        medication__owner=request.user,
+        next_dose_time__gte=now,
+        next_dose_time__lte=one_hour_later,
+    )
+
+    serializer = ScheduleSerializer(
+        due_schedules, many=True, context={"request": request}
+    )
+    return Response(serializer.data)

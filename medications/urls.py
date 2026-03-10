@@ -20,6 +20,7 @@ urlpatterns = [
     path("users/<int:pk>/", views.UserDetail.as_view(), name="user-detail"),
     path("api/token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("api/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
+    path("medicines-due/", views.medicines_due, name="medicines-due"),
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)
