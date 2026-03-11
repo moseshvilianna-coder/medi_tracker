@@ -51,7 +51,10 @@ class ScheduleList(generics.ListCreateAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        return Schedule.objects.filter(medication__owner=self.request.user)
+        return Schedule.objects.filter(
+            medication__owner=self.request.user,
+            medication__pk=self.kwargs["medication_pk"],
+        )
 
 
 class ScheduleDetail(generics.RetrieveUpdateDestroyAPIView):
@@ -59,7 +62,10 @@ class ScheduleDetail(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        return Schedule.objects.filter(medication__owner=self.request.user)
+        return Schedule.objects.filter(
+            medication__owner=self.request.user,
+            medication__pk=self.kwargs["medication_pk"],
+        )
 
 
 class DoseLogList(generics.ListCreateAPIView):
@@ -67,7 +73,10 @@ class DoseLogList(generics.ListCreateAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        return DoseLog.objects.filter(schedule__medication__owner=self.request.user)
+        return DoseLog.objects.filter(
+            schedule__medication__owner=self.request.user,
+            schedule__pk=self.kwargs["schedule_pk"],
+        )
 
 
 class DoseLogDetail(generics.RetrieveUpdateDestroyAPIView):
@@ -75,7 +84,10 @@ class DoseLogDetail(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        return DoseLog.objects.filter(schedule__medication__owner=self.request.user)
+        return DoseLog.objects.filter(
+            schedule__medication__owner=self.request.user,
+            schedule__pk=self.kwargs["schedule_pk"],
+        )
 
 
 class UserList(generics.ListAPIView):
