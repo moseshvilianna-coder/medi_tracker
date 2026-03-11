@@ -21,8 +21,7 @@ def api_root(request, format=None):
         {
             "users": reverse("user-list", request=request, format=format),
             "medications": reverse("medication-list", request=request, format=format),
-            "schedules": reverse("schedule-list", request=request, format=format),
-            "dose-logs": reverse("doselog-list", request=request, format=format),
+            "medicines-due": reverse("medicines-due", request=request, format=format),
         }
     )
 
