@@ -1,4 +1,3 @@
-# medications/views.py
 from django.utils import timezone
 from datetime import timedelta
 from django.contrib.auth.models import User
@@ -21,11 +20,14 @@ def api_root(request, format=None):
         {
             "users": reverse("user-list", request=request, format=format),
             "medications": reverse("medication-list", request=request, format=format),
+            "schedules": reverse("schedule-list", request=request, format=format),
+            "doselogs": reverse("doselog-list", request=request, format=format),
             "medicines-due": reverse("medicines-due", request=request, format=format),
         }
     )
 
 
+# --- Medication Views ---
 class MedicationList(generics.ListCreateAPIView):
     serializer_class = MedicationSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -45,15 +47,14 @@ class MedicationDetail(generics.RetrieveUpdateDestroyAPIView):
         return Medication.objects.filter(owner=self.request.user)
 
 
+# --- Schedule Views (Updated for Flat URLs) ---
 class ScheduleList(generics.ListCreateAPIView):
     serializer_class = ScheduleSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        return Schedule.objects.filter(
-            medication__owner=self.request.user,
-            medication__pk=self.kwargs["medication_pk"],
-        )
+        # We now filter purely by the logged-in user's ownership of the medication
+        return Schedule.objects.filter(medication__owner=self.request.user)
 
 
 class ScheduleDetail(generics.RetrieveUpdateDestroyAPIView):
@@ -61,21 +62,16 @@ class ScheduleDetail(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        return Schedule.objects.filter(
-            medication__owner=self.request.user,
-            medication__pk=self.kwargs["medication_pk"],
-        )
+        return Schedule.objects.filter(medication__owner=self.request.user)
 
 
+# --- DoseLog Views (Updated for Flat URLs) ---
 class DoseLogList(generics.ListCreateAPIView):
     serializer_class = DoseLogSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        return DoseLog.objects.filter(
-            schedule__medication__owner=self.request.user,
-            schedule__pk=self.kwargs["schedule_pk"],
-        )
+        return DoseLog.objects.filter(schedule__medication__owner=self.request.user)
 
 
 class DoseLogDetail(generics.RetrieveUpdateDestroyAPIView):
@@ -83,12 +79,10 @@ class DoseLogDetail(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        return DoseLog.objects.filter(
-            schedule__medication__owner=self.request.user,
-            schedule__pk=self.kwargs["schedule_pk"],
-        )
+        return DoseLog.objects.filter(schedule__medication__owner=self.request.user)
 
 
+# --- User Views ---
 class UserList(generics.ListAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
@@ -101,12 +95,9 @@ class UserDetail(generics.RetrieveAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
 
+# --- Custom Logic ---
 @api_view(["GET"])
 def medicines_due(request):
-    """
-    Returns medications whose next dose is due within the next hour.
-    This powers the reminder feature.
-    """
     now = timezone.now()
     one_hour_later = now + timedelta(hours=1)
 
