@@ -26,9 +26,7 @@ class MedicationSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class ScheduleSerializer(serializers.HyperlinkedModelSerializer):
-    medication = serializers.HyperlinkedRelatedField(
-        view_name="medication-detail", queryset=Medication.objects.all()
-    )
+    medication = serializers.ReadOnlyField(source="medication.name")
     dose_logs = serializers.HyperlinkedRelatedField(
         many=True, view_name="doselog-detail", read_only=True
     )
