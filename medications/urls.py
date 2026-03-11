@@ -1,9 +1,9 @@
-# medications/urls.py
 from django.urls import path
 from rest_framework.urlpatterns import format_suffix_patterns
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from medications import views
 
+# Define patterns clearly
 urlpatterns = [
     path("", views.api_root),
     path("medications/", views.MedicationList.as_view(), name="medication-list"),
@@ -39,4 +39,5 @@ urlpatterns = [
     path("api/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
 ]
 
+# Apply the suffix patterns
 urlpatterns = format_suffix_patterns(urlpatterns)
