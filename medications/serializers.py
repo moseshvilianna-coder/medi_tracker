@@ -40,12 +40,12 @@ class ScheduleSerializer(serializers.ModelSerializer):
         model = Schedule
         fields = (
             "id",
-            "medication",  # Send medication ID here to set it
-            "medication_name",  # Helper field to see the name in GET requests
+            "medication",
+            "medication_name",
             "frequency",
             "times_per_day",
-            "start_date",  # You can set this date
-            "end_date",  # You can set this date
+            "start_date",
+            "end_date",
             "next_dose_time",
             "dose_logs",
         )
@@ -62,7 +62,7 @@ class DoseLogSerializer(serializers.ModelSerializer):
         model = DoseLog
         fields = (
             "id",
-            "schedule",  # Send schedule ID here
+            "schedule",
             "medication_name",
             "taken_at",
             "was_taken",
