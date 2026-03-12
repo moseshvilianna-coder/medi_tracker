@@ -27,7 +27,6 @@ def api_root(request, format=None):
     )
 
 
-# --- Medication Views ---
 class MedicationList(generics.ListCreateAPIView):
     serializer_class = MedicationSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -47,13 +46,12 @@ class MedicationDetail(generics.RetrieveUpdateDestroyAPIView):
         return Medication.objects.filter(owner=self.request.user)
 
 
-# --- Schedule Views (Updated for Flat URLs) ---
 class ScheduleList(generics.ListCreateAPIView):
     serializer_class = ScheduleSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        # We now filter purely by the logged-in user's ownership of the medication
+
         return Schedule.objects.filter(medication__owner=self.request.user)
 
 
@@ -65,7 +63,6 @@ class ScheduleDetail(generics.RetrieveUpdateDestroyAPIView):
         return Schedule.objects.filter(medication__owner=self.request.user)
 
 
-# --- DoseLog Views (Updated for Flat URLs) ---
 class DoseLogList(generics.ListCreateAPIView):
     serializer_class = DoseLogSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -82,7 +79,6 @@ class DoseLogDetail(generics.RetrieveUpdateDestroyAPIView):
         return DoseLog.objects.filter(schedule__medication__owner=self.request.user)
 
 
-# --- User Views ---
 class UserList(generics.ListAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
@@ -95,7 +91,6 @@ class UserDetail(generics.RetrieveAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
 
-# --- Custom Logic ---
 @api_view(["GET"])
 def medicines_due(request):
     now = timezone.now()
