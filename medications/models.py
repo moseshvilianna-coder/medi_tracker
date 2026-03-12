@@ -2,7 +2,8 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
-from datetime import timedelta
+from datetime import timedelta, datetime, time
+import pytz
 
 FREQUENCY_CHOICES = [
     ("daily", "Daily"),
@@ -46,22 +47,21 @@ class Schedule(models.Model):
         ordering = ("next_dose_time",)
 
     def save(self, *args, **kwargs):
-        """
-        Auto-compute next_dose_time based on frequency,
-        following the same custom save() pattern as thr Snippet model.
-        """
-        now = timezone.now()
-        if self.frequency == "daily":
-            self.next_dose_time = now + timedelta(hours=24)
-        elif self.frequency == "twice_daily":
-            self.next_dose_time = now + timedelta(hours=12)
-        elif self.frequency == "three_times_daily":
-            self.next_dose_time = now + timedelta(hours=8)
-        elif self.frequency == "weekly":
-            self.next_dose_time = now + timedelta(weeks=1)
-        else:
-            self.next_dose_time = None
-        super(Schedule, self).save(*args, **kwargs)
+        if not self.next_dose_time:
+            tz = pytz.timezone("Asia/Tbilisi")
+            base = datetime.combine(self.start_date, time(8, 0))
+            base = tz.localize(base)
+
+            if self.frequency == "daily":
+                self.next_dose_time = base
+            elif self.frequency == "twice_daily":
+                self.next_dose_time = base
+            elif self.frequency == "weekly":
+                self.next_dose_time = base
+            else:
+                self.next_dose_time = None
+
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.medication.name} - {self.frequency}"
